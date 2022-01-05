@@ -1,7 +1,6 @@
 #include <stdio.h>
-#include <stdlib.h>
 
-int x[100], nine = 9, three = 3, line, column, lineIndex, columnIndex;
+int x[100] = {}, nine = 9, three = 3, line, column, lineIndex, columnIndex;
 
 int findZero();
 int valid(int position, int value);
@@ -9,25 +8,37 @@ int solve();
 
 int main()
 {
-	int i;
+	int i, temp;
 	FILE *f_inp, *f_out;
 	f_inp = fopen("input.txt", "r");
 	if(f_inp == NULL){
-		printf("Input file doesn't exist!");
-		exit(1);
+		printf("Input file doesn't exist!\n");
+		return 0;
 	}
-	for(i = 0; i < 81; i++)
-		fscanf(f_inp, "%d", &x[i]);
-	fclose(f_inp);
 	f_out = fopen("output.txt", "w");
-	if(solve() == 1)
+	for(i = 0; i < 81; i++){
+		fscanf(f_inp, "%d", &temp);
+		if(temp > 0 && valid(i, temp) == 0){
+			printf("Sudoku solving failed!\n");
+			fprintf(f_out, "-1");
+			fclose(f_out);
+			return 0;
+		}
+		else x[i] = temp;
+	}
+	if(solve() == 1){
+		printf("Sudoku solved successfully!\n");
 		for(i = 0; i < 81; i++){
 			if(i%9 == 0 && i > 0)
 				fprintf(f_out, "\n");
 			fprintf(f_out, "%d ", x[i]);
 		}
-	else
-		fprintf(f_out, "-1");	
+	}
+	else{
+		printf("Sudoku solving failed!\n");
+		fprintf(f_out, "-1");
+	}
+	fclose(f_inp);	
 	fclose(f_out);
 	return 0;
 }
@@ -57,7 +68,6 @@ asm(
 	"popl %ebp;"
 	"ret;"
 );
-
 asm(
 "valid:;"
 	"pushl %ebp;"
@@ -146,8 +156,8 @@ asm(
 	"jmp valid_exit;" // true
 				
 	"notValid:;"
-		"xorl %eax, %eax;" // false
-	
+		"movl $0, %eax;" // false
+		
 	"valid_exit:;"
 	"popl %ebx;"
 	"popl %edi;"
@@ -216,4 +226,3 @@ asm(
 	"popl %ebp;"
 	"ret;"	
 );
-
